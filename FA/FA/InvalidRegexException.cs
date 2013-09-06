@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FA
 {
-    class InvalidRegexException: Exception
+    public class InvalidRegexException: Exception
     {
         public int CharNum { get; private set; }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FA
 {
-    class DFAState
+    internal class DFAState
     {
         private List<NFAState> nfa_states = null;
         private DFAState[] next = new DFAState[256];

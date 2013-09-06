@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FA
 {
-    public class Pair<T, U>
+    internal class Pair<T, U>
     {
         public Pair()
         {

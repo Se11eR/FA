@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FA
 {
-    class NFAFragment
+    internal class NFAFragment
     {
         NFAState _start;
         public NFAState Start

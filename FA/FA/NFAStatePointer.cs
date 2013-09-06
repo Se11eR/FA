@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FA
 {
-    class NFAStatePointer
+    internal class NFAStatePointer
     {
         public NFAState value;
         public NFAStatePointer()

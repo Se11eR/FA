@@ -10,7 +10,7 @@ namespace FA
     {
         static void Main(string[] args)
         {
-            FA.Tests.NFATest.SimpleTest();
+            Tests.NFATest.SimpleTest();
             Tests.NFATest.PerformanceTest(25);
         }
     }

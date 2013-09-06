@@ -6,11 +6,21 @@ using System.Threading.Tasks;
 
 namespace FA
 {
-    class NFA
+    public class NFA
     {
         private NFAState start;
         private DFATable table = new DFATable();
         private int listid = 0;
+
+        #region constants
+        const char CONCAT = '&';
+        const char LEFTP = '(';
+        const char RIGHTP = ')';
+        const char ALT = '|';
+        const char STAR = '*';
+        const char PLUS = '+';
+        const char QUEST = '?';
+        #endregion
 
         private NFA()
         {
@@ -43,13 +53,6 @@ namespace FA
         /// <returns></returns>
         private static string InfixToPostfixRe(string re)
         {
-            const char CONCAT = '&';
-            const char LEFTP = '(';
-            const char RIGHTP = ')';
-            const char ALT = '|';
-            const char STAR = '*';
-            const char PLUS = '+';
-            const char QUEST = '?';
 
             LinkedList<Char> output = new LinkedList<Char>();
             Stack<Char> stack = new Stack<char>();
@@ -189,35 +192,35 @@ namespace FA
 
                         stack.Push(new NFAFragment(s, new List<NFAStatePointer>() { s.OutArrowPtr }));
                         break;
-                    case '&': //Concatenation
+                    case CONCAT: //Concatenation
                         e2 = stack.Pop();
                         e1 = stack.Pop();
                         NFAFragment.Patch(e1, e2.Start);
 
                         stack.Push(new NFAFragment(e1.Start, e2.OutArrows));
                         break;
-                    case '|': //Alternation
+                    case ALT: //Alternation
                         e2 = stack.Pop();
                         e1 = stack.Pop();
                         s = new NFAState(NFAStateName.Split, e1.Start, e2.Start);
 
                         stack.Push(new NFAFragment(s, NFAFragment.Concat(e1, e2)));
                         break;
-                    case '?': //Zero or one
+                    case QUEST: //Zero or one
                         e = stack.Pop();
                         s = new NFAState(NFAStateName.Split, e.Start, null);
 
                         stack.Push(new NFAFragment(s, NFAFragment.Concat(e.OutArrows, new List<NFAStatePointer>() { s.OutArrow1Ptr })));
                         break;
 
-                    case '*': //Zero or more
+                    case STAR: //Zero or more
                         e = stack.Pop();
                         s = new NFAState(NFAStateName.Split, e.Start, null);
                         NFAFragment.Patch(e, s);
 
                         stack.Push(new NFAFragment(s, new List<NFAStatePointer>() { s.OutArrow1Ptr }));
                         break;
-                    case '+': //One or more
+                    case PLUS: //One or more
                         e = stack.Pop();
                         s = new NFAState(NFAStateName.Split, e.Start, null);
                         NFAFragment.Patch(e, s);

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FA
 {
-    class DFATable
+    internal class DFATable
     {
         Dictionary<List<NFAState>, List<NFAState>[]> hash =
             new Dictionary<List<NFAState>, List<NFAState>[]>();
