@@ -49,14 +49,14 @@
     <Compile Include="FA\NFAFragment.cs" />
     <Compile Include="FA\NFAStatePointer.cs" />
     <Compile Include="FA\Pair.cs" />
-    <Compile Include="Instruction.cs" />
-    <Compile Include="InstructionsFrag.cs" />
+    <Compile Include="VM\Instruction.cs" />
+    <Compile Include="VM\InstructionsFrag.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\NFATest.cs" />
     <Compile Include="Tests\VMTest.cs" />
-    <Compile Include="Thread.cs" />
-    <Compile Include="VM.cs" />
+    <Compile Include="VM\Thread.cs" />
+    <Compile Include="VM\VM.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
