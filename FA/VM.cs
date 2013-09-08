@@ -138,6 +138,7 @@ namespace FA
 
         public static Instruction GetInstStream(string re)
         {
+            re = InfixToPostfixRe(re);
             Stack<InstructionsFrag> stack = new Stack<InstructionsFrag>();
 
             InstructionsFrag f, f1, f2;
@@ -157,38 +158,40 @@ namespace FA
                         f1 = stack.Pop();
                         f1.Last.next = f2.First;
 
-                        stack.Push(f1);
+                        stack.Push(new InstructionsFrag(f1.First, f2.Last));
                         break;
                     case ALT: //Alternation
                         f2 = stack.Pop();
                         f1 = stack.Pop();
 
                         i = new Instruction(f1.First, f2.First);
-                        empty = new Instruction();
-                        f2.Last.next = empty;
+                        empty = new Instruction(null);
                         f1.Last.next = new Instruction(empty);
+                        f2.Last.next = empty;
+                        
 
                         stack.Push(new InstructionsFrag(i, empty));
                         break;
                     case QUEST: //Zero or one
                         f = stack.Pop();
-                        empty = new Instruction();
+                        empty = new Instruction(null);
                         i = new Instruction(f.First, empty);
+                        f.Last.next = empty;
 
                         stack.Push(new InstructionsFrag(i, empty));
                         break;
 
                     case STAR: //Zero or more
                         f = stack.Pop();
-                        empty = new Instruction();
+                        empty = new Instruction(null);
                         i = new Instruction(f.First, empty);
-                        f.Last = new Instruction(i);
+                        f.Last.next = new Instruction(i);
 
                         stack.Push(new InstructionsFrag(i, empty));
                         break;
                     case PLUS: //One or more
                         f = stack.Pop();
-                        empty = new Instruction();
+                        empty = new Instruction(null);
                         i = new Instruction(f.First, empty);
                         f.Last.next = i;
 
@@ -201,5 +204,38 @@ namespace FA
             return f.First;
         }
 
+        public static bool RecursiveLoop(Instruction start, CharEnumerator sp)
+        {
+            Instruction pc = start;
+            while (true)
+            {
+                switch (pc.OperationCode)
+                {
+                    case Operation.Char:
+                        if (pc.c != sp.Current)
+                            return false;
+                        pc = pc.next;
+                        sp.MoveNext();
+                        continue;
+                    case Operation.Match:
+                        return true;
+                    case Operation.Jmp:
+                        pc = pc.next;
+                        continue;
+                    case Operation.Split:
+                        if (RecursiveLoop(pc.split1, sp))
+                            return true;
+                        pc = pc.split2;
+                        continue;
+                    default:
+                        throw new ApplicationException("fuck");
+                }
+            }
+        }
+
+        public static bool ThompsonVM(Instruction start, string str)
+        {
+
+        }
     }
 }

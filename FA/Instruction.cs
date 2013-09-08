@@ -12,15 +12,14 @@ namespace FA
         Match,
         Jmp,
         Split,
-        Empty
     }
 
     public class Instruction
     {
         public static readonly Instruction MatchInst = new Instruction(Operation.Match);
 
-        public readonly Operation OperationCode;
-        public readonly int c;
+        public Operation OperationCode;
+        public int c;
 
         public Instruction next;
         public Instruction split1;
@@ -29,15 +28,6 @@ namespace FA
         private Instruction(Operation o)
         {
             OperationCode = o;
-        }
-
-        public Instruction()
-        {
-            OperationCode = Operation.Empty;
-            c = 0;
-            split1 = null;
-            split2 = null;
-            next = null;
         }
 
         public Instruction(int ch)
@@ -65,5 +55,12 @@ namespace FA
             split2 = null;
             next = i;
         }
+
+        public override string ToString()
+        {
+            return OperationCode.ToString() + (OperationCode == Operation.Char ? ": " + ((char)c).ToString() : "");
+        }
+
+
     }
 }
