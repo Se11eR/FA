@@ -12,7 +12,7 @@ namespace FA.Tests
     {
         public static void SimpleTest()
         {
-            String[] regexps = { "a(d|c)+a", "a*((c+|d+)*)?", "a*(c*|d*)*?"};
+            String[] regexps = { "[abc()d]*", "a(d|c)+a", "a*((c+|d+)*)?", "a*(c*|d*)*?"};
             String[] strings = { "aaaaaaaa", "adad", "aaaadcddaaaa", "adcdcdcdca", "cddc", "aacddc", "cccccc", "dddddd" };
 
             foreach (var re in regexps)
@@ -27,6 +27,7 @@ namespace FA.Tests
                 Console.WriteLine("\r\n//-------------------\r\n");
             }
         }
+
         /// <summary>
         /// Будем матчить a^n по регулярке a?^na^n.
         /// Где x^n - просто n раз повторение регекса или символа x;

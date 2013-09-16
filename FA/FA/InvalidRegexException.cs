@@ -25,6 +25,7 @@ namespace FA
         }
 
         public InvalidRegexException(string message, int char_num)
+            : base(message)
         {
             CharNum = char_num;
         }

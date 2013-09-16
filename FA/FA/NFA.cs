@@ -13,7 +13,10 @@ namespace FA
         private int listid = 0;
 
         #region constants
+        const char DOT = '.';
         const char CONCAT = '&';
+        const char LEFTSQ = '[';
+        const char RIGHTSQ = ']';
         const char LEFTP = '(';
         const char RIGHTP = ')';
         const char ALT = '|';
@@ -78,67 +81,109 @@ namespace FA
             groups.AddFirst(new ParenthesesGroup());
             LinkedListNode<ParenthesesGroup> curGroup = groups.First;
             int charnum = 0;
+            bool isRange = false;
+            int ratom = 0;
             foreach (var c in re)
             {
-                switch (c)
+                if (!isRange)
                 {
-                    case LEFTP:
-                        //Если до "сейчас" было два атомарных выражения, самое время втсавить &
-                        if (natom > 1)
-                        {
-                            output.AddLast(CONCAT);
-                            natom--;
-                        }
-                        //...запомнить и сбросить значения natom и nalts
-                        curGroup.Value.natom = natom;
-                        curGroup.Value.nalt = nalt;
-                        natom = 0;
-                        nalt = 0;
-                        if (curGroup.Next == null)
-                            curGroup = groups.AddAfter(curGroup, new ParenthesesGroup());
-                        else
-                            curGroup = curGroup.Next;
-                        break;
-                    case RIGHTP:
-                        if (natom == 0 || curGroup == groups.First)
-                            throw new InvalidRegexException("Probably empty or invalid parentheses!", charnum);
-                        //Если мы "выходим" из скобки - со стека нужно снять все операторы
-                        while (--natom > 0)
-                            output.AddLast(CONCAT);
-                        for (;nalt > 0; nalt--)
-                            output.AddLast(ALT);
-                        //и вернуться "наружу", взяв записанные значения nalt и natom
-                        curGroup = curGroup.Previous;
-                        nalt = curGroup.Value.nalt;
-                        natom = curGroup.Value.natom;
-                        natom++;
-                        break;
-                    case ALT:
-                        if (natom == 0)
-                            throw new InvalidRegexException(ALT.ToString() + " operator has not enough operands", charnum);
-                        while (--natom > 0)
-                            output.AddLast(CONCAT);
-                        nalt++;
-                        break;
-                    case STAR:
-                    case PLUS:
-                    case QUEST:
-                        if (natom == 0)
-                            throw new InvalidRegexException("Lonely " + c.ToString() + ": no valid expression before it.", charnum);
-                        output.AddLast(c);
-                        break;
-                    default:
-                        //Если встречается не мета-символ, вставить конкатенацию если набралось два атома
-                        //И уменьшить кол-во атомов
-                        if (natom > 1)
-                        {
-                            output.AddLast(CONCAT);
-                            natom--;
-                        }
-                        //вытолкнуть его в выходной поток и увеличить кол-во атомов
-                        output.AddLast(c);
-                        natom++;
-                        break;
+                    switch (c)
+                    {
+                        case LEFTSQ:
+                            if (natom > 1)
+                            {
+                                output.AddLast(CONCAT);
+                                natom--;
+                            }
+                            isRange = true;
+                            break;
+                        case LEFTP:
+                            //Если до "сейчас" было два атомарных выражения, самое время втсавить &
+                            if (natom > 1)
+                            {
+                                output.AddLast(CONCAT);
+                                natom--;
+                            }
+                            //...запомнить и сбросить значения natom и nalts
+                            curGroup.Value.natom = natom;
+                            curGroup.Value.nalt = nalt;
+                            natom = 0;
+                            nalt = 0;
+                            if (curGroup.Next == null)
+                                curGroup = groups.AddAfter(curGroup, new ParenthesesGroup());
+                            else
+                                curGroup = curGroup.Next;
+                            break;
+                        case RIGHTP:
+                            if (natom == 0 || curGroup == groups.First)
+                                throw new InvalidRegexException("Probably empty or invalid parentheses!", charnum);
+                            //Если мы "выходим" из скобки - со стека нужно снять все операторы
+                            while (--natom > 0)
+                                output.AddLast(CONCAT);
+                            for (; nalt > 0; nalt--)
+                                output.AddLast(ALT);
+                            //и вернуться "наружу", взяв записанные значения nalt и natom
+                            curGroup = curGroup.Previous;
+                            nalt = curGroup.Value.nalt;
+                            natom = curGroup.Value.natom;
+                            natom++;
+                            break;
+                        case ALT:
+                            if (natom == 0)
+                                throw new InvalidRegexException(ALT.ToString() + " operator has not enough operands", charnum);
+                            while (--natom > 0)
+                                output.AddLast(CONCAT);
+                            nalt++;
+                            break;
+                        case STAR:
+                        case PLUS:
+                        case QUEST:
+                            if (natom == 0)
+                                throw new InvalidRegexException("Lonely " + c.ToString() + ": no valid expression before it.", charnum);
+                            output.AddLast(c);
+                            break;
+                        default:
+                            //Если встречается не мета-символ, вставить конкатенацию если набралось два атома
+                            //И уменьшить кол-во атомов
+                            if (natom > 1)
+                            {
+                                output.AddLast(CONCAT);
+                                natom--;
+                            }
+                            //вытолкнуть его в выходной поток и увеличить кол-во атомов
+                            output.AddLast(c);
+                            natom++;
+                            break;
+                    }
+                }
+                else
+                {
+                    if (c == LEFTSQ || c == CONCAT || c == STAR || c == ALT || c == QUEST || c == PLUS || c == DOT)
+                        throw new InvalidRegexException("Unexpected " + c.ToString() + " after [", charnum);
+                    switch (c)
+                    {
+                        case RIGHTSQ:
+                            if (ratom > 1)
+                            {
+                                output.AddLast(ALT);
+                                ratom--;
+                            }
+                            isRange = false;
+                            if (ratom == 0)
+                                throw new InvalidRegexException("Empty [] brackets!", charnum);
+                            ratom = 0;
+                            natom++;
+                            break;
+                        default:
+                            if (ratom > 1)
+                            {
+                                output.AddLast(ALT);
+                                ratom--;
+                            }
+                            output.AddLast(c);
+                            ratom++;
+                            break;
+                    }
                 }
                 charnum++;
             }
@@ -358,10 +403,10 @@ namespace FA
             listid++;
             foreach (var state in clist)
             {
-                if (state.c == c)
-                {
+                if (state.State == NFAStateName.Any)
                     AddState(nlist, state.OutArrowPtr.value);
-                }
+                else if (state.c == c)
+                    AddState(nlist, state.OutArrowPtr.value);
             }
         }
     }

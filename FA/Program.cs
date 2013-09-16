@@ -10,9 +10,16 @@ namespace FA
     {
         static void Main(string[] args)
         {
-            //Tests.NFATest.SimpleTest();
+            try
+            {
+                Tests.NFATest.SimpleTest();
+            }
+            catch (InvalidRegexException e)
+            {
+                Console.WriteLine(e.Message);
+                return;
+            }
             //Tests.NFATest.PerformanceTest(25);
-            Tests.VMTest.Test();
         }
     }
 }

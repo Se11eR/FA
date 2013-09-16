@@ -8,7 +8,7 @@ namespace FA
 {
     internal enum NFAStateName
     {
-        Literal, Split, Match
+        Literal, Split, Match, Any
     }
 
     internal class NFAState
@@ -67,6 +67,7 @@ namespace FA
         {
             get
             {
+                if (c == '.') return NFAStateName.Any;
                 if (c < 256) return NFAStateName.Literal;
                 if (c == 256) return NFAStateName.Split;
                 if (c == 257) return NFAStateName.Match;
